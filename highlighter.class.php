@@ -4,28 +4,6 @@ class Highlighter {
 	private $fileName;
 	private $fileExtension;
 	private $showFileName;
-
-	/*
-	if($foundCharacter == $character) {
-		$temp1 = $counter-1;
-		$temp2 = 0;
-		while($temp1 >= 0) {
-			$character = $fileContent[$temp1];
-			if($foundCharacter == $character) {
-				break;
-			}
-			else if($character == "\\") {
-				$temp2++;
-			}
-			else
-			{
-				$temp2 = 2;
-				break;
-			}
-			$temp1--;
-		}
-	}
-	*/				
 	
 	public function __construct() {
 		$this->fileName = "";
