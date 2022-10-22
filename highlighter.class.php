@@ -1,23 +1,51 @@
 <?php
 include_once("keywords.php");
-class highlighter {
+class Highlighter {
 	private $fileName;
 	private $fileExtension;
-	private $insideParenthesisColor;
-	private $insideBracketColor;
+	private $showFileName;
+
+	/*
+	if($foundCharacter == $character) {
+		$temp1 = $counter-1;
+		$temp2 = 0;
+		while($temp1 >= 0) {
+			$character = $fileContent[$temp1];
+			if($foundCharacter == $character) {
+				break;
+			}
+			else if($character == "\\") {
+				$temp2++;
+			}
+			else
+			{
+				$temp2 = 2;
+				break;
+			}
+			$temp1--;
+		}
+	}
+	*/				
 	
 	public function __construct() {
 		$this->fileName = "";
 		$this->fileExtension = "";
-		//Color Configuration
-		$this->insideParenthesisColor = "iPC";
-		$this->insideBracketColor = "iBC";
+		$this->showFileName = true;
 	}
 	
+	public function showfilename($value) {
+		$this->showFileName = $value;
+	}
+
+	//Hello World Baba
+
 	public function applycolor($fileLocation = "") {
-		if($fileLocation == "")
-		{	return;	}
-		else 
+		$temp1 = "Wikis are enabled by wiki software, otherwise known as wiki engines. A wiki engine, being a form of a content management system, 
+		differs from other web-based systems such as blog software, in that the content is created without any defined owner or leader, and wikis have little inherent structure, allowing structure to emerge according to the needs of the users.[1] Wiki engines usually allow content to be written using a simplified markup language and sometimes edited with the help of a rich-text editor.[2] There are dozens of different wiki engines in use, both standalone and part of other software, such as bug tracking systems. Some wiki engines are open-source, whereas others are proprietary. Some permit control over different functions (levels of access); for example, editing rights may permit changing, adding, or removing material. Others may permit access without enforcing access control. Other rules may be imposed to organize content.";
+		if($fileLocation == "") {
+			return;
+		}
+		else
 		{
 			if(file_exists($fileLocation)) {
 				$temp = explode("/",$fileLocation);
@@ -26,208 +54,168 @@ class highlighter {
 				$this->fileExtension = trim(end($temp));
 				$fileContent = trim(file_get_contents($fileLocation, true));
 				$fileContent = htmlentities($fileContent,ENT_NOQUOTES);
-				if($fileContent == "")
-				{	return;	}
+				if($fileContent == "") {	
+					return;	
+				}
 			}
 			else
-			{	return; }
-		}
-		
-		$blockFound = 0;
-		$blockFoundColor = array();
-		$parenthesisFound = 0;
-		$bracketFound = 0;
-		
-		$line = 1;
-		$characterBuffer = "";
-		$lastCharacter = "";
-		$counter = 0;
-		$contentSize = strlen($fileContent);
+			{	
+				return; 
+			}
+			
+			$parenthesisFound = 0;
+			$bracketFound = 0;
+			$foundCharacter = "";
 
-		$outputContent ="<font class='lin'>".$line."</font> ";
-		while($counter < $contentSize) {
-			$character = $fileContent[$counter];
-			$code = intval(ord($character));
-			if(($code >= 97 && $code <= 122) || ($code >= 65 && $code <= 90))
-			{	$characterBuffer .= $character;	}
-			else
-			{
-				if($code == 9) {
-					$outputContent .= "    ";
+			$line = 1;
+			$counter = 0;
+			$contentSize = strlen($fileContent);
+
+			$content = "<font class='lI'>".$line."</font> ";
+			while($counter < $contentSize) {
+				$character = $fileContent[$counter];
+				$code = intval(ord($character));
+				if(($code >= 97 && $code <= 122) || ($code >= 65 && $code <= 90)) {	
+					$characterBuffer .= $character;	
 				}
-				else if($code == 10)	{	//Find EOL (End of Line)
-					if($characterBuffer != "") {
-						$outputContent .= $this->checker($characterBuffer);
-						$characterBuffer = "";
-					}
-					$line++;
-					if($blockFound == 0)
-					{	$outputContent .= $character."<font class='lin'>".$line."</font> ";	}
-					else
-					{	$outputContent .= "</font>".$character."<font class='lin'>".$line."</font> <font class='".$blockFoundColor[$blockFound-1]."'>";	}
-				}
-				else if($code == 32) {	//Find Space
+				else
+				{
 					if($characterBuffer != "") {	
-						$outputContent .= $this->checker($characterBuffer);
+						$content .= $this->checker($characterBuffer);
 						$characterBuffer = "";
 					}
-					$outputContent .= $character;
-				}
-				else if($character == "\"" || $character == "'") {	//Find Quotes
-					if($characterBuffer != "") {
-						$outputContent .= $this->checker($characterBuffer);	
-						$characterBuffer = "";
-					}
-					$outputContent .= "<font class='qC'>".$character;
-					$foundCharacter = $character;
-					$counter++;
-					while($counter < $contentSize) {
-						$character = $fileContent[$counter];
-						$code = intval(ord($character));
-						if($code == 9) {
-							$outputContent .= "    ";
-						}
-						else if($character == $foundCharacter) {
-							$outputContent .= $character;
-							if($lastCharacter == "\\") {
-								$lastCharacter = "";
+
+					if($character == "/" && (isset($fileContent[$counter+1]) && ($fileContent[$counter+1] == "*" || $fileContent[$counter+1] == "/"))) {
+						$content .= "<font class='cC'>".$fileContent[$counter].$fileContent[$counter+1];
+						if($fileContent[$counter+1] == "*") {
+							$counter += 2;
+							while($counter < $contentSize) {
+								$character = $fileContent[$counter];
+								$code = intval(ord($character));
+								if($code != 10) {
+									if($character == "*" && (isset($fileContent[$counter+1]) && ($fileContent[$counter+1] == "/"))) {
+										$counter++;
+										$content .= $character.$fileContent[$counter]."</font>";
+										break;
+									}
+									else
+									{	$content .= $character;	}
+								}
+								else
+								{
+									$line++;
+									$content .= "</font>".$character."<font class='lI'>".$line."</font> <font class='cC'>";
+								}
+								$counter++;
 							}
-							else
-							{	break;	}
-						}
-						else if($character == "\\" && $lastCharacter == "\\") {
-							$outputContent .= $character;
-							$lastCharacter = "";
 						}
 						else
 						{
-							$lastCharacter = $character;
-							$code = intval(ord($character));
-							if($code != 10) 
-							{	$outputContent .= $character;	}
-							else
-							{
-								$line++;
-								$outputContent .= "</font>".$character."<font class='lin'>".$line."</font>	<font class='qC'>";
-							}
-						}
-						$counter++;
-					}
-					$outputContent .= "</font>";
-				}
-				else if($character == "(" || $character == ")") {	//Find Parenthesis
-					if($characterBuffer != "") {
-						$outputContent .= $this->checker($characterBuffer);	
-						$characterBuffer = "";
-					}
-					if($parenthesisFound == 0) {
-						$outputContent .= "<font class='pC'>".$character."</font><font class='iPC'>";
-						$parenthesisFound++;
-						$blockFoundColor[$blockFound] = $this->insideParenthesisColor;
-						$blockFound++;
-					}
-					else
-					{
-						if($character == "(") 
-						{	$parenthesisFound++;	}
-						if($character == ")") 
-						{	$parenthesisFound--;	}
-						if($parenthesisFound == 0) {
-							$outputContent .= "</font><font class='pC'>".$character."</font>";
-							$blockFound--;
-							unset($blockFoundColor[$blockFound]);
-						}
-						else
-						{	$outputContent .= $character;	}
-					}
-				}
-				else if($character == "[" || $character == "]")	{	//Find Bracket
-					if($characterBuffer != "") {
-						$outputContent .= $this->checker($characterBuffer);	
-						$characterBuffer = "";
-					}
-					if($bracketFound == 0) {
-						$outputContent .= "<font class='bC'>".$character."</font><font class='iBC'>";
-						$bracketFound++;
-						$blockFoundColor[$blockFound] = $this->insideBracketColor;
-						$blockFound++;
-					}
-					else
-					{
-						if($character == "[") 
-						{	$bracketFound++;	}
-						if($character == "]") 
-						{	$bracketFound--;	}
-						if($bracketFound == 0) {
-							$outputContent .= "</font><font class='bC'>".$character."</font>";
-							$blockFound--;
-							unset($blockFoundColor[$blockFound]);
-						}
-						else
-						{	$outputContent .= $character;	}
-					}
-				}
-				else if($character == "/" && (isset($fileContent[$counter+1]) && ($fileContent[$counter+1] == "*" || $fileContent[$counter+1] == "/"))) {	//Find Comment
-					if($characterBuffer != "") {
-						$outputContent .= $this->checker($characterBuffer);	
-						$characterBuffer = "";
-					}
-					$outputContent .= "<font class='cC'>".$fileContent[$counter].$fileContent[$counter+1];
-					if($fileContent[$counter+1] == "*") {
-						$counter += 2;
-						while($counter < $contentSize) {
-							$character = $fileContent[$counter];
-							$code = intval(ord($character));
-							if($code == 9) {
-								$outputContent .= "    ";
-							}
-							else if($code != 10) {
-								if($character == "*" && (isset($fileContent[$counter+1]) && ($fileContent[$counter+1] == "/"))) {
-									$counter++;
-									$outputContent .= $character.$fileContent[$counter]."</font>";
+							$counter += 2;
+							while($counter < $contentSize) {
+								$character = $fileContent[$counter];
+								$code = intval(ord($character));
+								if($code == 10) {
+									$content .= "</font>";
+									$counter--;
 									break;
 								}
-								else
-								{	$outputContent .= $character;	}
+								$content .= $character;
+								$counter++;
 							}
-							else
-							{
-								$line++;
-								$outputContent .= "</font>".$character."<font class='lin'>".$line."</font> <font class='cC'>";
-							}
-							$counter++;
 						}
 					}
-					else
-					{
-						$counter += 2;
+					else if($character == "'" || $character == "\"") {
+						$foundCharacter = $character;
+						$content .= "<font class='qC'>".$foundCharacter;
+						$counter++;
 						while($counter < $contentSize) {
 							$character = $fileContent[$counter];
 							$code = intval(ord($character));
-							if($code == 10) {
-								$outputContent .= "</font>";
-								$counter--;
-								break;
+							if($foundCharacter == $character) {
+								if($foundCharacter == "\"") {
+									if($fileContent[$counter-1] != "\\") {
+										$content .= $foundCharacter."</font>";
+										break;
+									}
+									else if($fileContent[$counter-2] == "\\" && $fileContent[$counter-1] == "\\") {
+										$content .= $foundCharacter."</font>";
+										break;
+									}
+									else
+									{
+										$content .= $character;
+									}
+								}
+								else
+								{
+									$content .= $foundCharacter."</font>";
+									break;
+								}
 							}
-							$outputContent .= $character;
+							else if($code == 10) {
+								$line++;
+								$content .= $character;
+								$content .= "<font class='lI'>".$line."</font> ";
+							}
+							else
+							{
+								$content .= $character;
+							}
 							$counter++;
 						}
 					}
+					else if($character == "(" || $character == ")") {
+						if($parenthesisFound == 0) {
+							$content .= "<font class='pC'>".$character."</font><font class='iPC'>";
+						}
+						if($character == "(") {
+							$parenthesisFound++;
+						}
+						else if($character == ")") {
+							$parenthesisFound--;
+						}
+						if($parenthesisFound == 0) {
+							$content .= "</font><font class='pC'>".$character."</font>";
+						}
+					}
+					else if($character == "[" || $character == "]") {
+						if($bracketFound == 0) {
+							$content .= "<font class='bC'>".$character."</font><font class='iBC'>";
+						}
+						if($character == "[") {
+							$bracketFound++;
+						}
+						else if($character == "]") {
+							$bracketFound--;
+						}
+						if($bracketFound == 0) {
+							$content .= "</font><font class='bC'>".$character."</font>";
+						}
+					}
+					else if($code == 10) {
+						$line++;
+						$content .= $character;
+						$content .= "<font class='lI'>".$line."</font> ";
+					}
+					else
+					{
+						$content .= $character;
+					}
 				}
-				else if($characterBuffer != "") {
-					$outputContent .= $this->checker($characterBuffer).$character;
-					$characterBuffer = "";
-				}
-				else
-				{	$outputContent .= $character;	}
+				$counter++;
 			}
-			$counter++;
+
+			$output .= "<div class='codebox'>";
+			if($this->showFileName == true) {
+				$output .= "<div class='fN'>".$this->fileName."</div>";
+			}
+			$output .= "<div class='code'><pre><code>".$content."</code></pre></div>";
+			$output .= "</div>";
+			return $output;
 		}
-		$rerurnData = "<div class='fN'>".$this->fileName."</div>";
-		$rerurnData .= "<pre><code><div class='codebox'>".$outputContent."</div></code></pre>";		
-		return $rerurnData;
 	}
-	
+
 	private function checker($value) {
 		global $languageKeywords;		
 		$value = trim($value);

@@ -1,0 +1,55 @@
+.codebox {
+margin-top:8px;
+margin-bottom:8px;
+font-size:16px;
+}
+
+.fN {
+color:#21094e;
+margin-bottom:5px;
+}
+
+.code {
+padding:16px;
+overflow:auto;
+color:#59D9D1;
+background-color:#000000;
+border-left:5px solid #605a56;
+}
+
+pre {
+margin:0px;
+padding:0px;
+}
+
+.lI {
+color:#ffffff;
+}
+
+.kC {
+color:#F5D67B;
+}
+
+.cC {
+color:#b8b0b0;
+}
+
+.qC {
+color:#FC7038;
+}
+
+.pC {
+color:#F5D67B;
+}
+
+.iPC {
+color:#F5D67B;
+}
+
+.bC {
+color:#F5D67B;
+}
+
+.iBC {
+color:#F5D67B;
+}
