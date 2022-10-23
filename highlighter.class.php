@@ -15,11 +15,7 @@ class Highlighter {
 		$this->showFileName = $value;
 	}
 
-	//Hello World Baba
-
 	public function applycolor($fileLocation = "") {
-		$temp1 = "Wikis are enabled by wiki software, otherwise known as wiki engines. A wiki engine, being a form of a content management system, 
-		differs from other web-based systems such as blog software, in that the content is created without any defined owner or leader, and wikis have little inherent structure, allowing structure to emerge according to the needs of the users.[1] Wiki engines usually allow content to be written using a simplified markup language and sometimes edited with the help of a rich-text editor.[2] There are dozens of different wiki engines in use, both standalone and part of other software, such as bug tracking systems. Some wiki engines are open-source, whereas others are proprietary. Some permit control over different functions (levels of access); for example, editing rights may permit changing, adding, or removing material. Others may permit access without enforcing access control. Other rules may be imposed to organize content.";
 		if($fileLocation == "") {
 			return;
 		}
@@ -53,7 +49,7 @@ class Highlighter {
 			while($counter < $contentSize) {
 				$character = $fileContent[$counter];
 				$code = intval(ord($character));
-				if(($code >= 97 && $code <= 122) || ($code >= 65 && $code <= 90)) {	
+				if(($code >= 97 && $code <= 122) || ($code >= 65 && $code <= 90)) { //Identify only alphabet(Capital/Small) characters
 					$characterBuffer .= $character;	
 				}
 				else
@@ -63,14 +59,14 @@ class Highlighter {
 						$characterBuffer = "";
 					}
 
-					if($character == "/" && (isset($fileContent[$counter+1]) && ($fileContent[$counter+1] == "*" || $fileContent[$counter+1] == "/"))) {
+					if($character == "/" && (isset($fileContent[$counter+1]) && ($fileContent[$counter+1] == "*" || $fileContent[$counter+1] == "/"))) { //Identify single comment or multiple comments
 						$content .= "<font class='cC'>".$fileContent[$counter].$fileContent[$counter+1];
 						if($fileContent[$counter+1] == "*") {
 							$counter += 2;
 							while($counter < $contentSize) {
 								$character = $fileContent[$counter];
 								$code = intval(ord($character));
-								if($code != 10) {
+								if($code != 10) { //Identify '\n' character
 									if($character == "*" && (isset($fileContent[$counter+1]) && ($fileContent[$counter+1] == "/"))) {
 										$counter++;
 										$content .= $character.$fileContent[$counter]."</font>";
@@ -93,7 +89,7 @@ class Highlighter {
 							while($counter < $contentSize) {
 								$character = $fileContent[$counter];
 								$code = intval(ord($character));
-								if($code == 10) {
+								if($code == 10) { //Identify '\n' character
 									$content .= "</font>";
 									$counter--;
 									break;
@@ -103,7 +99,7 @@ class Highlighter {
 							}
 						}
 					}
-					else if($character == "'" || $character == "\"") {
+					else if($character == "'" || $character == "\"") { //Identify sigle quote or double quote character
 						$foundCharacter = $character;
 						$content .= "<font class='qC'>".$foundCharacter;
 						$counter++;
@@ -131,7 +127,7 @@ class Highlighter {
 									break;
 								}
 							}
-							else if($code == 10) {
+							else if($code == 10) { //Identify '\n' character
 								$line++;
 								$content .= $character;
 								$content .= "<font class='lI'>".$line."</font> ";
@@ -143,7 +139,7 @@ class Highlighter {
 							$counter++;
 						}
 					}
-					else if($character == "(" || $character == ")") {
+					else if($character == "(" || $character == ")") { //Identify parenthesis character
 						if($parenthesisFound == 0) {
 							$content .= "<font class='pC'>".$character."</font><font class='iPC'>";
 						}
@@ -157,7 +153,7 @@ class Highlighter {
 							$content .= "</font><font class='pC'>".$character."</font>";
 						}
 					}
-					else if($character == "[" || $character == "]") {
+					else if($character == "[" || $character == "]") { //Identify bracket character
 						if($bracketFound == 0) {
 							$content .= "<font class='bC'>".$character."</font><font class='iBC'>";
 						}
@@ -171,7 +167,7 @@ class Highlighter {
 							$content .= "</font><font class='bC'>".$character."</font>";
 						}
 					}
-					else if($code == 10) {
+					else if($code == 10) { //Identify '\n' character
 						$line++;
 						$content .= $character;
 						$content .= "<font class='lI'>".$line."</font> ";
@@ -197,8 +193,8 @@ class Highlighter {
 	private function checker($value) {
 		global $languageKeywords;		
 		$value = trim($value);
-		if(isset($languageKeywords[$this->fileExtension])) {				
-			if(in_array($value,$languageKeywords[$this->fileExtension]))
+		if(isset($languageKeywords[$this->fileExtension])) { //Identify file type extension			
+			if(in_array($value,$languageKeywords[$this->fileExtension])) //Identify keywords
 			{	$value = "<font class='kC'>".$value."</font>";	}
 		}	
 		return $value;
