@@ -66,14 +66,16 @@ class Highlighter {
 							while($counter < $contentSize) {
 								$character = $fileContent[$counter];
 								$code = intval(ord($character));
-								if($code != 10) { //Identify '\n' character
+								if($code != 10) { //Identify not '\n' character
 									if($character == "*" && (isset($fileContent[$counter+1]) && ($fileContent[$counter+1] == "/"))) {
 										$counter++;
 										$content .= $character.$fileContent[$counter]."</font>";
 										break;
 									}
 									else
-									{	$content .= $character;	}
+									{	
+										$content .= $character;	
+									}
 								}
 								else
 								{
@@ -179,8 +181,8 @@ class Highlighter {
 				}
 				$counter++;
 			}
-
-			$output .= "<div class='codebox'>";
+			
+			$output = "<div class='codediv'>";
 			if($this->showFileName == true) {
 				$output .= "<div class='fN'>".$this->fileName."</div>";
 			}
@@ -194,8 +196,9 @@ class Highlighter {
 		global $languageKeywords;		
 		$value = trim($value);
 		if(isset($languageKeywords[$this->fileExtension])) { //Identify file type extension			
-			if(in_array($value,$languageKeywords[$this->fileExtension])) //Identify keywords
-			{	$value = "<font class='kC'>".$value."</font>";	}
+			if(in_array($value,$languageKeywords[$this->fileExtension])) { //Identify keywords				
+				$value = "<font class='kC'>".$value."</font>";	
+			}
 		}	
 		return $value;
 	}
